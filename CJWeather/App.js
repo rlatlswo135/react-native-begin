@@ -1,91 +1,182 @@
 import { StatusBar } from 'expo-status-bar';
-/*
-  StatusBar는 뭔데 react-native에서 import안하지? => 3rd party 패키지라그럼(제3자 패키지)
-  근데 react-native공식 문서에는 StatusBar 컴포넌트가 있고 import도 할수있다 => 그럼위에  Import한건 뭐고 아래는 뭘까?
-  =>공식문서에 API부분이 자바스크립ㅊ트코드
-*/
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect,useState } from 'react';
+import * as Location from 'expo-location';
+import {Ionicons} from '@expo/vector-icons'
+import { ScrollView, StyleSheet, Text, View ,Dimensions, ActivityIndicator,Image} from 'react-native';
 
-/*
-React-Native는 웹사이트용이 아니다. => 그러니 div태그 등 우리가 기존에알던 html태그는 못쓴다는거지. 중요!!!!!!
-그래서. RN은 웹사이트용이 아니기때문에 기존의 브라우저가 있다고 가정한형태의 코딩과 다른 Rule이 있다.
+const {height,width:SCREEN_WIDTH} = Dimensions.get("window");
 
-1. View = Container(div의 대체라고 생각하면 되겟지?) => 항상 import해야지.
-
-2. React-Native의 모든 text는 Text컴포넌트 안에 들어가야한다. => 마찬가지로 html이 아니기때문에 p span h1등 텍스트 관련 스타일은 못쓴다
-  => View안에 text를 써주면 즉시오류난다. 항상 Text컴포넌트 안에 text를 적도록. => 마찬가지로 항상 import해야지
-
-3. style은 View에 props에 담긴걸 보면 대충 이해할수있겟지만 Web에서 쓰던 모든 스타일을 쓸수는 없다.!
-  => ex) border 등.. 거의 대부분은 쓸수있지만 못쓰는것도 있다는것을 알도록!
-
-
-  **
-  과거에는 React-Native가 많은 컴포넌를 지원했지만, 범용성이 넓고 빠른 지원을위해 대부분은 중단하고.
-  다른 컴포넌트는 패키지처럼 유저끼리 주고받을수있게 된느낌이다 npm처럼 (=> 커뮤니티 패키지)
-  그래서 검색으로 다른 패키지를 찾아서 우리가 원하는기능을 꽃아서 써야하는 느낌.
-  근데 오픈소스는 개인프로젝트라 개인의 사정에따라 유지보수가 안될수있다;;
-  ====>
-  그래서, 이런 패키지가 중요할텐데 React-Native가 범용성을 이유로 많은 컴포넌트를 지원하지않다보니
-  expo팀이 컴포넌트를 만들엇다 그것도 아주 다양하게 많이;; => Expo SDK
-  -> 그래서 Expo apis에 가서 패키지를 찾아서 설치하고 import해서 쓰면된다 무려 RN팀이 제공하는게아닌 Expo에서 제공하는거
-  -> 위에 react-native에서 제공하는 statusbar, expo에서 제공하는 statusbar가 있는 이유다. => 각 사용법은 각자의 공식문서에있겟지?
-  
-  지원하는 양의차이는 압도적으로 Expo가 많으니 Expo로 통일하는게 나을듯? => 근데 Expo에서 지원하지 않는걸 쓰려면 우짜지;
-  **
-*/
 export default function App() {
+  const MONTH = ["1월", "2월", "3월", "4월", "3월", "June", "July", "August", "September", "October", "November", "December"]
+  const DAY = ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"]
+  const [city,setCity] = useState("Loading...")
+  const [weathers,setWeathers] = useState([])
+  const [success,setSuccess] = useState(true);
+
+  const API_KEY = '8edc63e36d80a0a3ca623f4b3cab6315' //보안을위해 원래는 서버에둬서 요청을통해 응답을받아야된다
+  async function getWeathers(){
+    const {granted} =  await Location.requestForegroundPermissionsAsync()
+    if(!granted){
+      setSuccess(false)
+    }
+    const {coords:{latitude,longitude}} = await Location.getCurrentPositionAsync();
+    const location = await Location.reverseGeocodeAsync({latitude,longitude},{useGoogleMaps:false})
+    setCity(location[0].city)
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=metric&exclude=alert&appid=${API_KEY}`)
+    const json = await response.json()
+    setWeathers(json.daily)
+  }
+  useEffect(()=>{
+    getWeathers()
+  },[])
   return (
-    <>
-      {/* // View가 이미 flex display다. block, inline-block grid이런거없다 only flex. 그리고 default가 row가아닌 column(웹은 row) */}
-      <View style={styles.container}>
-        {/* 꼭 이렇게안하고 style프롭스 안에 직접 obj형태로 넣어도 된다. */}
-        <Text style={styles.text}>React Native 배우기</Text>
-        {/* 와 폰에서 바로보임;; */}
-        <StatusBar style="auto" />
-        {/* 우리가 web에서 개발하는게 아니라는 증거. (평소의 react라면 Text컴포넌트 밑에 렌더 되야할텐데?)
-        => Text컴포넌트 아래에 적혓지만 Text아래에 있지않고 스테이터스바 그자리에 있다 . 즉 운영체제에 어떻게 해주세요~ 라고 전달만하는거라는거지,
-        => 그니까 해당 컴포넌트를 지워도 실제 상태바는 남아있다 왜? RN이 렌더를해주는게 아니니까
-        => 즉 모든 컴포넌트가 화면에 렌더되지 않는다는거다.(statusbar는 원래 폰에있는건데 그걸 바꿔달라고 전달만해주는 컴포넌트인거고) = 일부컴포넌트는 운영체제와 소통만한다는 소리.
-        **StatusBar 컴포넌트는 폰 위에 시계 와이파이 배터리 상태 그 줄 그거다. 그부분을 커스텀해주세요~ 라고 React-Native가 전달만 해주는거지
+    <View style={styles.container}>
+      <View style={styles.cityBox}>
+        <Text style={styles.cityName}>{city}</Text>
+      </View>
+      {/* 항상 기억하자 React-Native는 운영체제에게 전달해주는거지 브라우저가없기때문에 직접 렌더하지 않는다는걸 */}
+        {/* 스크롤뷰 컴포넌트는 props로 스타일을 주면 원하는대로 안될수도있다 -> contentContainerStyle 프롭스를 써주는데.
+        추가로 스크롤뷰는 우리의 뷰보다 크겟지?(스크롤이니까) 그래서 flex-grow를 해주면 원하는대로 안된다(스크롤이 짤림 flex-grow로 인해 사이즈가 정해져서)
+        정~~~말 많은 props가 있으니 혼자 만지작거리면서 터득하는게 길 => 공식문서에 다있다 
+        paginEnabled=> 페이징가능. 디폴트가 false인데 디폴트면 스크롤이 사용자맘대로 원하는위치에 멈춘다-> 너무미세해해보니까
+        그래서 true로 하면 스크롤크기만큼으로 페이징이 제한된다(뭔가 끈적하게 페이징됨)
         */}
-        <View style={{flex:1,backgroundColor:'green'}}></View>
-        <View style={{flex:2,backgroundColor:'teal'}}></View>
-        <View style={{flex:1,backgroundColor:'tomato'}}></View>
-      </View>
-      <View style={{flex:1}}> 
-        <View style={{flex:1,backgroundColor:'green'}}></View>
-        <View style={{flex:2,backgroundColor:'teal'}}></View>
-        <View style={{flex:1,backgroundColor:'tomato'}}></View>
-      </View>
-      </>
+        {
+          weathers.length === 0 
+          ? 
+          <View style={styles.indicator}>
+            <ActivityIndicator size="large" color="white"></ActivityIndicator>
+          </View>
+          :
+          <ScrollView
+          contentContainerStyle={styles.weatherBox}
+          horizontal={true}
+          pagingEnabled={true}
+          showsHorizontalScrollIndicator={false}>
+            {weathers.map((day,index)=>{
+              const tempConverter = parseFloat(day.temp.day).toString().substring(0,4)
+              const newDay = new Date(day.dt*1000)
+              const isToday = newDay.toString().substring(0,15) === new Date().toString().substring(0,15)
+              return(
+                <View key={index} style={styles.dayWeather}>
+                  <View style={styles.date}>
+                    <Text style={styles.day}>{DAY[newDay.getDay()]}</Text>
+                    <Text style={styles.month}>{`${newDay.getMonth()+1}월 ${newDay.getDate()}일`}
+                      {isToday ? <Text style={styles.isToday}> (Today)</Text> : null}
+                    </Text>
+                  </View>
+                  <View style={styles.tempBox}>
+                    <Text style={styles.temp}>{`${tempConverter}°`}</Text>
+                    <Text style={styles.description}>{day.weather[0].main}
+                    </Text>
+                      <Image style={styles.icons} source={{
+                        uri:`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`
+                      }}/>
+                  </View>
+                  <View style={styles.footerBox}>
+                    <View style={styles.tempFooterBox}>
+                      <Text style={styles.tempHigh}>&uarr; : {day.temp.max}°</Text>
+                      <Text style={styles.tempLow}>&darr; : {day.temp.min}°</Text>
+                    </View>
+                    <View>
+                      <Text style={styles.tempHigh}>{`구름 : ${day.clouds}%`}</Text>
+                    </View>
+                  </View>
+                </View>
+              )
+            })}
+          </ScrollView> 
+        }
+        <View></View>
+      <StatusBar style="dark"></StatusBar>
+    </View>
   );
 }
 
-//StyleSheet.create는 style OBJ를 만든다고 보면되는데 자동완성기능이 매력적이다
 const styles = StyleSheet.create({
-  //create안에 인자로 obj가 들어갔지? => 객체니까 결국 keyName도 내 커스텀일거다
-  container: {
-    backgroundColor: '#fff',
-    flex:1
-  },
-  text:{
-    //css가 아니기때문에 font-size같은건 안한다. javascript처럼 camelcase
-    fontSize:28,
-    color: 'blue'
-  },
-  box:{
-    /*
-    반응형때문에 width height를 정하는건 거의안쓰긴한다 => flexgrow로 만든다. => !비율! 로
-    =>flex grow는 부모의 크기에따라 결정되기때문에 부모의 사이즈가 정해져있지않으면 작동을 안한다. => 그래서 부모의 컨테이너에도 flex grow가 적용되어있어야.
-    */
+  container:{
     flex:1,
-    backgroundColor:'green'
+    backgroundColor:"#C69B7B",
+    paddingTop:70
+  },
+  cityBox:{
+    flex:0.5,
+    justifyContent:"flex-end",
+    paddingLeft:30,
+    paddingBottom:15,
+  },
+  weatherBox:{
+  },
+  //픽셀로 정해주지 않는다는게 중요하지.
+  cityName:{
+    fontSize:35,
+    fontWeight:"700"
+  },
+  dayWeather:{
+    /*
+    스크롤될때 1개씩보이고싶으니까 해당 컨테이너 사이즈의 전부를 차지해야 한개씩보이겟지?
+    그럼 사이즈를 어떻게받아와? => react-native api문서(javascript)에 다~있다 => dimensions(치수)
+    */
+    width:SCREEN_WIDTH,
+    alignItems:"center",
+  },
+  temp:{
+    fontSize:120
+  },
+  description:{
+    marginTop:20,
+    fontSize:35,
+    paddingLeft:20
+  },
+  indicator:{
+    flex:1,
+  },
+  date:{
+    paddingLeft:30,
+    alignItems:"flex-start",
+    width:SCREEN_WIDTH
+  },
+  day:{
+    fontSize:20,
+    fontWeight:"500"
+  },
+  month:{
+    fontSize:15,
+    paddingTop:10,
+    fontWeight:"400"
+  },
+  tempBox:{
+    marginTop:50,
+    width:SCREEN_WIDTH-60,
+    borderTopWidth:2,
+    borderBottomWidth:2,
+    alignItems:"flex-start",
+    paddingTop:100,
+    paddingBottom:100
+  },
+  footerBox:{
+    width:SCREEN_WIDTH-60,
+    flexDirection:"row",
+    paddingTop:30,
+    paddingLeft:30,
+    paddingRight:30,
+    justifyContent:"space-around"
+  },
+  tempFooterBox:{
+    width:SCREEN_WIDTH-60,
+  },
+  tempHigh:{
+    fontSize:18
+  },
+  tempLow:{
+    paddingTop:10,
+    fontSize:18
+  },
+  isToday:{
+    fontWeight:"600"
+  },
+  icons:{
+    width:50,
+    height:50
   }
-});
-
-/*
-  style이 컴포넌트 프롭스안에 obj형태로 들어가기때문에 전역으로 선언된 객체안에 스타일내용들을 키밸류로 넣어도 잘 작동하지만
-  StyleSheet.create로 obj를 만들어주는이유는 전역객체는 스타일관련 자동완성기능이 '당연히'지원되지 않을거기때문에; (그냥객체니까)
-  하지만 전자는 stylesheet전용 obj를 만들어주는 느낌이라 매력적인 style관련 자동완성기능을 지원해줄거다
-  => 그러니 마찬가지로 StyleSheet obj역시 항상 import 해주는게 좋겠다.
-*/
+})
