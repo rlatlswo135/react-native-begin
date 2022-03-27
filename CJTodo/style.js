@@ -1,0 +1,111 @@
+import {StyleSheet,Dimensions} from 'react-native'
+import {theme} from './colors'
+
+const {height:SCREEN_HEIGHT,width:SCREEN_WIDTH} = Dimensions.get("window");
+
+export const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      paddingHorizontal:20,
+    },
+    header:{
+      marginTop:50,
+      flexDirection:"row",
+      justifyContent:"space-between",
+    }
+    ,
+    btnText:{
+      color:theme.gray,
+      fontSize:30,
+      fontWeight:"600",
+    },
+    textInput:{
+      backgroundColor:'rgba(100,100,100,0.9)',
+      paddingHorizontal:30,
+      width:SCREEN_WIDTH,
+      height:300,
+      marginTop:5,
+      fontSize:30
+    },
+    todoList:{
+      flex:1,
+      paddingVertical:30
+    },
+    todo:{
+      borderWidth:1,
+      borderColor:'rgba(100,100,100,0.2)',
+      padding:15
+    },
+    todoText:{
+      color:"white"
+    },
+    todayBox:{
+        paddingTop:7
+    },
+    today:{
+      color:"white",
+      fontSize:20
+    },
+    category:{
+      color:"white",
+      alignItems:"flex-start",
+      flex:1,
+      borderWidth:0.5,
+      borderColor:'rgba(100,100,100,0.1)'
+    },
+    categoryText:{
+        color:"rgba(100,100,100,0.9)",
+        fontSize:20,
+        fontWeight:"600"
+    }
+    ,
+    categoryChild:{
+        paddingTop:5,
+        width:"100%",
+        height:"80%"
+    },
+    categoryChildText:{
+      color:"rgba(255,255,255,0.8)",
+      fontSize:20,
+      padding:20,
+      borderWidth:0.5,
+      borderColor:'rgba(100,100,100,0.2)',
+    //   textDecorationLine:"line-through"
+    },
+    input:{
+        backgroundColor:"rgba(255,255,255,0.8)",
+        borderRadius:30,
+        marginTop:10,
+        padding:10,
+        width:SCREEN_WIDTH/2,
+        alignItems:"center"
+    },
+    inputText:{
+        color:'rgba(100,100,100,0.5)'
+    },
+    inputBox:{
+        flexDirection:"row",
+        justifyContent:"space-between"
+    },
+    modalBox:{
+        marginTop:100,
+        height:SCREEN_HEIGHT,
+        alignItems:"center"
+    },
+    selectFood:{
+      backgroundColor:'rgba(100,100,100,0.9)',
+      width:SCREEN_WIDTH/3,
+      marginTop:150,
+    },
+    foodBox:{
+        alignItems:"center"
+    },
+    food:{
+        borderWidth:1,
+        borderColor:'rgba(100,100,100,0.1)',
+        color:"rgba(0,0,0,0.6)",
+        paddingVertical:20,
+        fontSize:20,
+    }
+  });
