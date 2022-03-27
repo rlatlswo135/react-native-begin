@@ -89,3 +89,9 @@ const styles = StyleSheet.create({
   하지만 전자는 stylesheet전용 obj를 만들어주는 느낌이라 매력적인 style관련 자동완성기능을 지원해줄거다
   => 그러니 마찬가지로 StyleSheet obj역시 항상 import 해주는게 좋겠다.
 */
+
+
+/*
+    expo 프로젝트를 만들고, 폰과 연동하고(로그인) 실시간 테스트, snack이용도 가능. => native방식은 아님
+    native방식을 해봐야하는데..
+*/
